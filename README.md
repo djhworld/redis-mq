@@ -42,6 +42,8 @@ more robust messaging system
 
 (def db (redis/init)) ;localhost
 (rmq/produce db "queue.test" 1)
+(rmq/produce db "queue.test" 2)
+(rmq/produce db "queue.test" 3)
 ```
 
 #### queue-consume
@@ -58,7 +60,7 @@ more robust messaging system
 ;message process fn
 (defn double-print [x] (println (* x 2)))
 
-;will block until queue is empty then the method will exit. Each message process is separated by a delay of 1 second
+;will block until queue is empty then the method will exit.
 (rmq/consume db "queue.test" double-print consumption-rate)
 ```
 
