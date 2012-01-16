@@ -4,11 +4,6 @@
     (:require [clj-redis.client :as redis])
     (:use [clojure.tools.logging :as l]))
 
-(defn distribute-to-error-queue [connection queue msg error]
-  (let [error-queue (str queue ".error")]
-    (l/error "RMQ | QUEUE | Caught exception attempting to process message " (:message-id msg) ", distributing to error queue: " error-queue)
-    (produce connection error-queue { :original-msg msg :destination queue :error error })))
-
 (defn inspect-queue [connection queue]
   "Returns all items in a given queue"
   (if (redis/exists connection queue)
@@ -18,6 +13,11 @@
 (defmacro produce [connection queue message]
   "Push a message onto a given queue"
   `(redis/lpush ~connection ~queue (~core/wrap-msg ~message)))
+
+(defn distribute-to-error-queue [connection queue msg error]
+  (let [error-queue (str queue ".error")]
+    (l/error "RMQ | QUEUE | Caught exception attempting to process message " (:message-id msg) ", distributing to error queue: " error-queue)
+    (produce connection error-queue { :original-msg msg :destination queue :error error })))
 
 (defmacro consume [connection queue dispatch consumption-rate]
   "Waits for messages to arrive, then processes the queue accordingly. Once the queue is empty method will quit"
