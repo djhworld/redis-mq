@@ -14,54 +14,54 @@ more robust messaging system
 ## Usage
 
 ### pub/sub
-publisher
+#### publisher
 
     (:use [redis-mq.pubsub :as rmq]
           [clj-redis.client :as redis])
-          
+
     (def db (redis/init)) ;localhost
     (rmq/pub db "pubsub.test" "daniel")
-    
-subscriber
+
+#### subscriber
 
     (:use [redis-mq.pubsub :as rmq]
           [clj-redis.client :as redis])
-          
+
     (def db (redis/init)) ;localhost
     (rmq/sub db "pubsub.test" (fn [name] (println "Hello " name)))
- 
+
 ### produce/consume
-queue-produce
+#### queue-produce
 
     (:use [redis-mq.queue :as rmq]
           [clj-redis.client :as redis])
-          
+
     (def db (redis/init)) ;localhost
     (rmq/produce db "queue.test" 1)
-    
-queue-consume
+
+#### queue-consume
 
     (:use [redis-mq.queue :as rmq]
           [clj-redis.client :as redis])
-          
+
     (def db (redis/init)) ;localhost
-    
+
     ;will block until queue is empty then the method will exit
     (rmq/consume db "queue.test" (fn [x] (println (+ x 1))))
-    
-queue-consume-wait
+
+#### queue-consume-wait
 
     (:use [redis-mq.queue :as rmq]
           [clj-redis.client :as redis])
-          
+
     (def db (redis/init)) ;localhost
-    
+
     ;will block all the time. When a message arrives it will process
     ;it and then wait for the next one (never exits)
     ;you specify the consumption rate at the end (i.e. time to wait
     ;after processing each message)
     (rmq/consume-wait db "queue.test" (fn [x] (println (+ x 1))) 5)
- 
+
 ## License
 
 Copyright (C) 2012 djhworld
