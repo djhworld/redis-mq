@@ -4,21 +4,23 @@
     (:require [clj-redis.client :as redis])
     (:use [clojure.tools.logging :as l]))
 
-(defn inspect-queue [connection queue]
-  (if (redis/exists connection queue)
-    (let [size (redis/llen connection queue)]
-      (map (fn [i] (:body (core/unwrap-msg i))) (redis/lrange connection queue 0 size)))))
-
-(defmacro produce [connection queue message]
-    `(redis/lpush ~connection ~queue (~core/wrap-msg ~message)))
-
 (defn distribute-to-error-queue [connection queue msg error]
   (let [error-queue (str queue ".error")]
     (l/error "RMQ | QUEUE | Caught exception attempting to process message " (:message-id msg) ", distributing to error queue: " error-queue)
     (produce connection error-queue { :original-msg msg :destination queue :error error })))
 
+(defn inspect-queue [connection queue]
+  "Returns all items in a given queue"
+  (if (redis/exists connection queue)
+    (let [size (redis/llen connection queue)]
+      (map (fn [i] (:body (core/unwrap-msg i))) (redis/lrange connection queue 0 size)))))
+
+(defmacro produce [connection queue message]
+  "Push a message onto a given queue"
+  `(redis/lpush ~connection ~queue (~core/wrap-msg ~message)))
 
 (defmacro consume [connection queue dispatch consumption-rate]
+  "Waits for messages to arrive, then processes the queue accordingly. Once the queue is empty method will quit"
   `(do
      (l/info ~"RMQ | QUEUE | Initializing...")
      (l/info ~"RMQ | QUEUE | Listening to messages on queue " ~queue)
@@ -36,6 +38,7 @@
          (recur (dec x#)))))))
 
 (defmacro consume-wait [connection queue dispatch consumption-rate]
+  "Waits for messages to arrive, then processes the queue accordingly. Once the queue is empty it will continue to wait for further messages"
   `(do
       (l/info ~"RMQ | QUEUE | Initializing...")
       (l/info ~"RMQ | QUEUE | Listening to messages on queue " ~queue)

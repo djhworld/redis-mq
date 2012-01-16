@@ -51,9 +51,10 @@ more robust messaging system
     [clj-redis.client :as redis])
 
 (def db (redis/init)) ;localhost
+(def consumption-rate 1)
 
-;will block until queue is empty then the method will exit
-(rmq/consume db "queue.test" (fn [x] (println (+ x 1))))
+;will block until queue is empty then the method will exit. Each message process is separated by a delay of 1 second
+(rmq/consume db "queue.test" (fn [x] (println (+ x 1))) consumption-rate)
 ```
 
 #### queue-consume-wait
@@ -63,12 +64,12 @@ more robust messaging system
     [clj-redis.client :as redis])
 
 (def db (redis/init)) ;localhost
+(def consumption-rate 1)
 
 ;will block all the time. When a message arrives it will process
 ;it and then wait for the next one (never exits)
-;you specify the consumption rate at the end (i.e. time to wait
-;after processing each message)
-(rmq/consume-wait db "queue.test" (fn [x] (println (+ x 1))) 5)
+;Each message process is separated by a delay of 1 second
+(rmq/consume-wait db "queue.test" (fn [x] (println (+ x 1))) consumption-rate)
 ```
 
 ## License
