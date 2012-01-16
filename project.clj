@@ -1,5 +1,5 @@
-(defproject redis-mq "0.0.1"
-  :description "Redis Queue Helpers"
+(defproject redis-mq "0.0.2"
+  :description "Redis Message Queue Utilities"
   :dependencies [[org.clojure/clojure "1.3.0"]
                  [clj-redis "0.0.12"]
                  [clj-time "0.3.2"]

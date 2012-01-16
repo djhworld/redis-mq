@@ -4,6 +4,11 @@
     (:require [clj-redis.client :as redis])
     (:use [clojure.tools.logging :as l]))
 
+(defn inspect-queue [connection queue]
+  (if (redis/exists connection queue)
+    (let [size (redis/llen connection queue)]
+      (map (fn [i] (:body (core/unwrap-msg i))) (redis/lrange connection queue 0 size)))))
+
 (defmacro produce [connection queue message]
     `(redis/lpush ~connection ~queue (~core/wrap-msg ~message)))
 
