@@ -1,11 +1,11 @@
 (ns redis-mq.pubsub
     (:use [redis-mq.core :as core])
-    (:use [redis-mq.core :as queue])
+    (:use [redis-mq.queue :as queue])
     (:use [clojure.string :as str :only [trim]])
     (:require [clj-redis.client :as redis])
     (:use [clojure.tools.logging :as l]))
 
-(defmacro subscribe [connection channel dispatch]
+(defmacro sub [connection channel dispatch]
   `(do
       (l/info ~"RMQ | PUB-SUB | Initializing...")
       (l/info ~"RMQ | PUB-SUB | Subscribing to channel" ~channel)
@@ -20,5 +20,5 @@
             (queue/produce ~connection error-queue# { :original-msg msg# :error (str e#) })
           )))))))
 
-(defmacro publish [connection channel msg-map]
+(defmacro pub [connection channel msg-map]
     `(redis/publish ~connection ~channel (~core/wrap-msg ~msg-map)))
