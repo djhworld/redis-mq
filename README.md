@@ -1,18 +1,21 @@
 # redis-mq
 
-A small collection of utilities to deploy message queue like
-functionality into your Clojure applications. 
+A small collection of utilities to deploy message queue like functionality into your Clojure applications.
 
+You will need an installation of [redis](http://redis.io) running to use this library.
+
+## Justification
 
 By no means is this a production ready product, or even that well coded, but I felt tools like the excellent [RabbitMQ](http://www.rabbitmq.com/) were too complex for small projects like the ones I tend to make.
 
-So I made this as a compromise. It just allows you to get things up and running with your redis installation so you can prototype Clojure applications with pubsub/queue like functionality before dropping in more robust messaging system
+So I made this as a compromise. It just allows you to get things up so you can prototype Clojure applications with pubsub/queue like functionality before dropping in more robust messaging solution.
 
 ## Usage
 
 ### pub/sub
 #### publisher
-Drop this into your application
+Drop this into your application to publish messages to a queue. 
+
 ```clj
 (:use [redis-mq.pubsub :as rmq]
       [clj-redis.client :as redis])
@@ -21,13 +24,22 @@ Drop this into your application
 ```
 
 #### subscriber
+This subscribes to a channel and forwards received messages to a dispatch function.
+
+> **A note about dispatch functions**
+>
+> When a message is received it will send the contents of the mesasge as 
+> the first argument to a given dispatch function, e.g. `(fn [message-body] (println message-body))`
 
 ```clj
 (:use [redis-mq.pubsub :as rmq]
     [clj-redis.client :as redis])
 
 (def db (redis/init)) ;localhost
-(rmq/sub db "pubsub.test" (fn [name] (println "Hello " name)))
+(defn say-hello [name]
+  (println "Hello " name))
+  
+(rmq/sub db "pubsub.test" say-hello))
 ```
 
 ### produce/consume
