@@ -1,21 +1,18 @@
 # redis-mq
 
 A small collection of utilities to deploy message queue like
-functionality into your applications. By no means is this a production
-ready product, or even that well coded, but I felt tools like the
-excellent RabbitMQ were too complex for small projects like the ones I
-tend to make.
+functionality into your Clojure applications. 
 
-So I made this as a compromise. It just allows you to get things up
-and running with your redis installation so you can prototype Clojure
-applications with pubsub/queue like functionality before dropping in
-more robust messaging system
+
+By no means is this a production ready product, or even that well coded, but I felt tools like the excellent [RabbitMQ](http://www.rabbitmq.com/) were too complex for small projects like the ones I tend to make.
+
+So I made this as a compromise. It just allows you to get things up and running with your redis installation so you can prototype Clojure applications with pubsub/queue like functionality before dropping in more robust messaging system
 
 ## Usage
 
 ### pub/sub
 #### publisher
-
+Drop this into your application
 ```clj
 (:use [redis-mq.pubsub :as rmq]
       [clj-redis.client :as redis])
