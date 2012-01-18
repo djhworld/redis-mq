@@ -10,6 +10,10 @@ By no means is this a production ready product, or even that well coded, but I f
 
 So I made this as a compromise. It just allows you to get things up so you can prototype Clojure applications with pubsub/queue like functionality before dropping in more robust messaging solution.
 
+## Installation 
+
+Depend on `[redis-mq "0.0.3"]` in your `project.clj`
+
 ## Usage
 
 ### pub/sub
@@ -38,7 +42,7 @@ This subscribes to a channel and forwards received messages to a dispatch functi
 (def db "redis://localhost:6379")
 
 (defn say-hello [name]
-  (println "Hello " name))
+  (println "Hello " name + "!"))
 
 (rmq/sub db "pubsub.test" say-hello))
 ```
@@ -89,8 +93,40 @@ This subscribes to a channel and forwards received messages to a dispatch functi
 (rmq/consume-wait db "queue.test" double-print :consumption-rate 2)
 ```
 
+## Errors
+
+If an exception is thrown during message processing (on both 
+`consumers` and `subscribers`) then the message and error message will be
+put as a JSON message onto the queue `<queuename.error>`. E.g. for the
+queue `queue.test`, the error queue will be called `queue.test.error` 
+
+## Final note
+
+This library is just a utility library that has been quite useful for
+me in some of my apps. The actual legwork is being done by the
+excellent [clj-redis](https://github.com/djhworld/clj-redis) library
+which is a wrapper for [Jedis](https://github.com/xetorthio/jedis)
+
 ## License
 
 Copyright (C) 2012 djhworld
 
-Distributed under the Eclipse Public License, the same as Clojure.
+Permission is hereby granted, free of charge, to any person obtaining
+a copy of this software and associated documentation files (the
+"Software"), to deal in the Software without restriction, including
+without limitation the rights to use, copy, modify, merge, publish,
+distribute, sublicense, and/or sell copies of the Software, and to
+permit persons to whom the Software is furnished to do so, subject to
+the following conditions:
+
+The above copyright notice and this permission notice shall be
+included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
+CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
+TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.iCopyright (c)
+year copyright holders
