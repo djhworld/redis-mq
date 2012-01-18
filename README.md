@@ -18,7 +18,9 @@ Drop this into your application to publish messages to a queue.
 
 ```clj
 (:use [redis-mq.pubsub :as rmq])
-(def db (redis/init)) ;localhost
+
+(def db "redis://localhost:6379")
+
 (rmq/pub db "pubsub.test" "daniel")
 ```
 
@@ -48,6 +50,7 @@ This subscribes to a channel and forwards received messages to a dispatch functi
 (:use [redis-mq.pubsub :as rmq])
 
 (def db "redis://localhost:6379")
+
 (rmq/produce db "queue.test" 1)
 (rmq/produce db "queue.test" 2)
 (rmq/produce db "queue.test" 3)
