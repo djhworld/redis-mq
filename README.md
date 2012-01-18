@@ -14,11 +14,10 @@ So I made this as a compromise. It just allows you to get things up so you can p
 
 ### pub/sub
 #### publisher
-Drop this into your application to publish messages to a queue. 
+Drop this into your application to publish messages to a queue.
 
 ```clj
-(:use [redis-mq.pubsub :as rmq]
-      [clj-redis.client :as redis])
+(:use [redis-mq.pubsub :as rmq])
 (def db (redis/init)) ;localhost
 (rmq/pub db "pubsub.test" "daniel")
 ```
@@ -28,17 +27,17 @@ This subscribes to a channel and forwards received messages to a dispatch functi
 
 > **A note about dispatch functions**
 >
-> When a message is received it will send the contents of the mesasge as 
+> When a message is received it will send the contents of the mesasge as
 > the first argument to a given dispatch function, e.g. `(fn [message-body] (println message-body))`
 
 ```clj
-(:use [redis-mq.pubsub :as rmq]
-    [clj-redis.client :as redis])
+(:use [redis-mq.pubsub :as rmq])
 
-(def db (redis/init)) ;localhost
+(def db "redis://localhost:6379")
+
 (defn say-hello [name]
   (println "Hello " name))
-  
+
 (rmq/sub db "pubsub.test" say-hello))
 ```
 
@@ -46,10 +45,9 @@ This subscribes to a channel and forwards received messages to a dispatch functi
 #### queue-produce
 
 ```clj
-(:use [redis-mq.queue :as rmq]
-    [clj-redis.client :as redis])
+(:use [redis-mq.pubsub :as rmq])
 
-(def db (redis/init)) ;localhost
+(def db "redis://localhost:6379")
 (rmq/produce db "queue.test" 1)
 (rmq/produce db "queue.test" 2)
 (rmq/produce db "queue.test" 3)
@@ -58,38 +56,34 @@ This subscribes to a channel and forwards received messages to a dispatch functi
 #### queue-consume
 
 ```clj
-(:use [redis-mq.queue :as rmq]
-    [clj-redis.client :as redis])
+(:use [redis-mq.pubsub :as rmq])
 
-(def db (redis/init)) ;localhost
-
-;the amount of seconds to wait after each message has completed processing
-(def consumption-rate 1)
+(def db "redis://localhost:6379")
 
 ;message process fn
 (defn double-print [x] (println (* x 2)))
 
-;will block until queue is empty then the method will exit.
-(rmq/consume db "queue.test" double-print consumption-rate)
+;will consume until queue is empty then the method will exit.
+;the optional flag :consumption-rate tells the consumer to wait 2
+;seconds between each message
+(rmq/consume db "queue.test" double-print :consumption-rate 2)
 ```
 
 #### queue-consume-wait
 
 ```clj
-(:use [redis-mq.queue :as rmq]
-    [clj-redis.client :as redis])
+(:use [redis-mq.pubsub :as rmq])
 
-(def db (redis/init)) ;localhost
-
-;the amount of seconds to wait after each message has completed processing
-(def consumption-rate 0)
+(def db "redis://localhost:6379")
 
 ;message process fn
 (defn double-print [x] (println (* x 2)))
 
 ;will block all the time. When a message arrives it will process
-;it and then wait for the next one (never exits)
-(rmq/consume-wait db "queue.test" double-print consumption-rate)
+;it and then wait for the next one (never exits). 
+;the optional flag :consumption-rate tells the consumer to wait 2
+;seconds between each message
+(rmq/consume-wait db "queue.test" double-print :consumption-rate 2)
 ```
 
 ## License
