@@ -1,4 +1,4 @@
-(defproject redis-mq "0.0.3"
+(defproject redis-mq "0.0.4"
   :description "Redis Message Queue Utilities"
   :dependencies [[org.clojure/clojure "1.3.0"]
                  [clj-redis "0.0.12"]

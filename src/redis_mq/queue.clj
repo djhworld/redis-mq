@@ -11,10 +11,12 @@
       (let [size (redis/llen connection queue)]
         (map (fn [i] (:body (core/unwrap-msg i))) (redis/lrange connection queue 0 size))))))
 
-(defn produce [connection-string queue message]
+(defn produce [connection-string queue message & {:keys [reverse?] :or {reverse? false}}]
   "Push a message onto a given queue"
   (let [connection (redis/init {:url connection-string })]
-    (redis/lpush connection queue (core/wrap-msg message))))
+    (if reverse?
+      (redis/rpush connection queue (core/wrap-msg message))
+      (redis/lpush connection queue (core/wrap-msg message)))))
 
 (defn distribute-to-error-queue [connection-string queue msg error]
   (let [error-queue (str queue ".error") connection (redis/init {:url connection-string })]
